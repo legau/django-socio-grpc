@@ -1,3 +1,4 @@
+from typing import List
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext as _
 from google.protobuf.pyext._message import RepeatedCompositeContainer
@@ -21,6 +22,11 @@ LIST_PROTO_SERIALIZER_KWARGS = (*LIST_SERIALIZER_KWARGS, LIST_ATTR_MESSAGE_NAME,
 
 
 class BaseProtoSerializer(BaseSerializer):
+    def __new__(cls, *args, **kwargs):
+        if kwargs.pop("partial", False):
+            return cls.partial_init(*args, **kwargs)
+        return super().__new__(*args, **kwargs)
+
     def __init__(self, *args, **kwargs):
         message = kwargs.pop("message", None)
         self.stream = kwargs.pop("stream", None)
@@ -72,9 +78,21 @@ class BaseProtoSerializer(BaseSerializer):
         list_serializer_class = getattr(meta, "list_serializer_class", ListProtoSerializer)
         return list_serializer_class(*args, **list_kwargs)
 
+    @classmethod
+    def partial_init(cls, *args, **kwargs):
+
+        meta = getattr(cls, "Meta", None)
+        partial_serializer_class = getattr(
+            meta, "partial_serializer_class", PartialProtoModelSerializer
+        )
+
+        return partial_serializer_class(*args, **kwargs)
+
     def to_proto_message(self):
         raise NotImplementedError(
-            "If you want to use BaseProtoSerializer instead of ProtoSerializer you need to implement 'to_proto_message' method as there is no fields to introspect from. Please read the documentation"
+            "If you want to use BaseProtoSerializer instead of ProtoSerializer you "
+            "need to implement 'to_proto_message' method as there is no fields to introspect from. "
+            "Please read the documentation"
         )
 
 
@@ -139,6 +157,11 @@ class ListProtoSerializer(ListSerializer, BaseProtoSerializer):
             )
             return response
 
+
+class PartialProtoModelSerializer(ModelSerializer, BaseProtoSerializer):
+    def message_to_data(self, message):
+        grpc_dict = message_to_dict(message)
+        return {k: v for k, v in grpc_dict.items() if k in message["fields"]}
 
 class ModelProtoSerializer(ProtoSerializer, ModelSerializer):
     pass

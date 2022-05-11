@@ -68,7 +68,7 @@ class KnowMethods:
 
     @classmethod
     def get_methods_no_custom_messages(cls):
-        return [cls.CREATE, cls.UPDATE, cls.PARTIAL_UPDATE]
+        return [cls.CREATE, cls.UPDATE]
 
     @classmethod
     def get_methods_no_stream(cls):
@@ -702,6 +702,37 @@ class RegistrySingleton(metaclass=SingletonMeta):
         request_message_name = f"{serializer_name}Retrieve{REQUEST_SUFFIX}"
         self.registered_app[app_name]["registered_messages"][request_message_name] = [
             retrieve_field
+        ]
+
+        response_message_name = self.register_serializer_as_message_if_not_exist(
+            app_name, serializer_instance, is_request=False
+        )
+
+        return request_message_name, response_message_name
+
+    def register_partial_update_serializer_as_message(
+        self, app_name, service_instance, serializer_instance, retrieve_field_name=None
+    ):
+        """
+        Method that register a defaut know "retrieve" method in the app proto message
+        """
+        retrieve_field = self.get_lookup_field_from_serializer(
+            serializer_instance, service_instance, retrieve_field_name
+        )
+
+        serializer_name = self.get_message_name_from_field_or_serializer_instance(
+            serializer_instance, append_type=False
+        )
+
+        request_content_name = self.register_serializer_as_message_if_not_exist(
+            app_name, serializer_instance, is_request=True
+        )
+
+        request_message_name = f"{serializer_name}PartialUpdate{REQUEST_SUFFIX}"
+        self.registered_app[app_name]["registered_messages"][request_message_name] = [
+            retrieve_field,
+            ("content", request_content_name),
+            ("fields", "repeated string")
         ]
 
         response_message_name = self.register_serializer_as_message_if_not_exist(
