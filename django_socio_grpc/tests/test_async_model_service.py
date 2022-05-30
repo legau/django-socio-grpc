@@ -5,7 +5,6 @@ import grpc
 from asgiref.sync import async_to_sync
 from django.test import TestCase
 from django.utils import timezone
-from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelControllerStub,
     add_UnitTestModelControllerServicer_to_server,
@@ -13,6 +12,8 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 from fakeapp.models import UnitTestModel
 from fakeapp.services.unit_test_model_service import UnitTestModelService
 from freezegun import freeze_time
+
+from fakeapp.grpc import fakeapp_pb2
 
 from .grpc_test_utils.fake_grpc import FakeAIOGRPC
 

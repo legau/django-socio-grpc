@@ -2,7 +2,6 @@ from datetime import datetime
 
 from django.test import TestCase
 from django.utils import timezone
-from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     UnitTestModelControllerStub,
     add_UnitTestModelControllerServicer_to_server,
@@ -10,6 +9,8 @@ from fakeapp.grpc.fakeapp_pb2_grpc import (
 from fakeapp.models import UnitTestModel
 from fakeapp.services.sync_unit_test_model_service import SyncUnitTestModelService
 from freezegun import freeze_time
+
+from fakeapp.grpc import fakeapp_pb2
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
 

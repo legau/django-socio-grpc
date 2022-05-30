@@ -1,13 +1,14 @@
 import os
 
 from django.test import TestCase
-from fakeapp.grpc import fakeapp_pb2
 from fakeapp.grpc.fakeapp_pb2_grpc import (
     BasicControllerStub,
     add_BasicControllerServicer_to_server,
 )
 from fakeapp.services.basic_service import BasicService
 from google.protobuf import json_format
+
+from fakeapp.grpc import fakeapp_pb2
 
 from .grpc_test_utils.fake_grpc import FakeGRPC
 
